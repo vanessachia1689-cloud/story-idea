@@ -82,7 +82,7 @@ if generate_btn:
         # ==========================================
         # 🌟 第二步：带着文件 ID 和文字需求，启动大模型工作流
         # ==========================================
-        with st.spinner("🧠 创意大脑已全面接管，正在疯狂生成10个S级提案中..."):
+        with st.spinner("🧠 创意大脑已全面接管，正在疯狂生成S级提案中..."):
             workflow_headers = {
                 "Authorization": f"Bearer {DIFY_IDEA_API_KEY}",
                 "Content-Type": "application/json"
@@ -114,6 +114,7 @@ if generate_btn:
                 result_box = st.empty()
                 heartbeat_box = st.empty() 
                 full_result = ""
+                workflow_finished_normally = False
                 
                 for line in response.iter_lines():
                     if line:
@@ -122,30 +123,54 @@ if generate_btn:
                             data_str = decoded_line[5:].strip()
                             try:
                                 json_data = json.loads(data_str)
+                                event_type = json_data.get('event')
                                 
-                                # 心跳防断网起搏器
-                                if json_data.get('event') == 'ping':
-                                    heartbeat_box.caption(f"💓 视频解析与大脑思考中... [最近心跳: {time.strftime('%H:%M:%S')}]")
+                                # 📡 节点雷达：播报 Dify 正在后台干什么
+                                if event_type == 'node_started':
+                                    node_title = json_data.get('data', {}).get('title', '未知节点')
+                                    heartbeat_box.info(f"⚙️ Dify 底层节点运转中: 【{node_title}】... [时间: {time.strftime('%H:%M:%S')}]")
+                                    continue
+                                
+                                # 💓 心跳防断网起搏器
+                                elif event_type == 'ping':
+                                    heartbeat_box.caption(f"💓 视频解析与推演中... [最近心跳: {time.strftime('%H:%M:%S')}]")
                                     continue
                                     
-                                elif json_data.get('event') == 'text_chunk':
+                                elif event_type == 'text_chunk':
                                     chunk = json_data.get('data', {}).get('text', '')
                                     full_result += chunk
                                     result_box.markdown(full_result + " ▌")
+                                
+                                # ❌ 捕获后台报错
+                                elif event_type == 'error':
+                                    error_msg = json_data.get('message', '未知错误')
+                                    st.error(f"❌ Dify 后台发生错误: {error_msg}")
+                                    workflow_finished_normally = True
+                                    break
                                     
-                                elif json_data.get('event') == 'workflow_finished':
+                                elif event_type == 'workflow_finished':
                                     heartbeat_box.empty() 
                                     result_box.markdown(full_result)
                                     st.session_state.idea_result = full_result
+                                    workflow_finished_normally = True
+                                    break
                                     
                             except json.JSONDecodeError:
                                 continue
+                                
+                # 🚨 防静默断连报警
+                if not workflow_finished_normally:
+                    st.error("⚠️ 警告：连接被网络运营商或路由器异常切断！")
+                    st.info("👉 Dify 后台可能仍在继续生成。请稍后前往 Dify 后台日志提取结果。")
+                    if full_result:
+                        st.session_state.idea_result = full_result
+                        
             except Exception as e:
                 st.error(f"连接失败，可能是视频太大或请求超时: {e}")
 
 # --- 完美一键复制区 ---
 if st.session_state.idea_result:
     with top_extraction_area.container():
-        st.success("✅ 创意提案已生成！直接点击下方代码框右上角的【两张纸】图标，一键复制进飞书吧！")
+        st.success("✅ 创意提案已生成（或已中断）！直接点击下方代码框右上角的【两张纸】图标，一键复制进飞书吧！")
         st.markdown("👇 **Markdown 表格提取区**")
         st.code(st.session_state.idea_result, language="markdown")
