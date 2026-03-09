@@ -18,7 +18,7 @@ if "idea_result" not in st.session_state:
     st.session_state.idea_result = ""
 
 st.title("💡 AI短剧创意与三幕剧提案引擎【V-Team】")
-st.markdown("⚠️ **机密系统：北美S级创意流水线。**")
+st.markdown("⚠️ **机密系统：仅供TT-909 WORK项目组内部使用，请勿外传。**")
 
 st.subheader("📥 请输入创意物料 (多项目选填，给得越多创意越准)")
 
@@ -34,7 +34,7 @@ with col2:
     # 新增：真正的文件/视频上传组件
     uploaded_file = st.file_uploader("📂 上传参考视频/文件 (file_upload):", type=["mp4", "mov", "avi", "pdf", "docx", "txt"])
 
-generate_btn = st.button("🚀 激荡创意 (流式直出，告别过期！)")
+generate_btn = st.button("🚀 激荡创意 (流式直出，一键复制)")
 
 # 提取区占位
 top_extraction_area = st.empty()
