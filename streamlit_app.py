@@ -171,6 +171,6 @@ if generate_btn:
 # --- 完美一键复制区 ---
 if st.session_state.idea_result:
     with top_extraction_area.container():
-        st.success("✅ 创意提案已生成（或已中断）！直接点击下方代码框右上角的【两张纸】图标，一键复制进飞书吧！")
+        st.success("✅ 创意提案已生成！直接点击下方代码框右上角的【两张纸】图标，一键复制进飞书吧！")
         st.markdown("👇 **Markdown 表格提取区**")
         st.code(st.session_state.idea_result, language="markdown")
