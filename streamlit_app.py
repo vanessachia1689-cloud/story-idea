@@ -50,7 +50,7 @@ with col2:
     # 文件上传框的 key 是动态的，清空时数字+1，旧文件瞬间被顶号
     uploaded_file = st.file_uploader("📂 上传参考视频/文件 (file_upload):", key=f"uploader_{st.session_state.file_key}", type=["mp4", "mov", "avi", "pdf", "docx", "txt"])
 
-generate_btn = st.button("🚀 激荡创意 (抗强压防断线版)")
+generate_btn = st.button("🚀 三幕式短剧创意开启生成！")
 
 # 提取区占位
 top_extraction_area = st.empty()
